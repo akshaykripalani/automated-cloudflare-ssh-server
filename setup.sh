@@ -115,3 +115,6 @@ fi
 echo "Tunnel is running."
 
 echo "At this point you would deploy the WARP client on your devices, and manually configure TCP settings, along with your enrolment rules."
+echo "IMPORTANT!!: You must manually configure the split tunnels mode in cloudflare!"
+echo "Visit Zero Trust -> Settings -> Warp Client -> Profile Settings (Visit Default, or any existing profile) -> Split Tunnels -> Include IPs and Domains -> Manage -> Add IP/CIDR -> Add $NETWORK_CIDR -> Save"
+echo "The tunnel will not route traffic to the server until you do this."
