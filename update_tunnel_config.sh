@@ -88,11 +88,14 @@ NEW_RULE=$(jq -n --arg hn "$NEW_HOSTNAME" --arg svc "$NEW_SERVICE" \
 # Append the new rule and then re-append the catch-all rule
 UPDATED_INGRESS_RULES=$(echo "$FILTERED_INGRESS_RULES" | jq -c ". + [$NEW_RULE] + [{\"service\": \"http_status:404\"}]")
 
-# Construct the final JSON payload for the PUT request
+# Construct the final JSON payload for the PUT request precisely nested under "config"
 FINAL_PAYLOAD=$(jq -n \
-    --argjson ingress_rules "$UPDATED_INGRESS_RULES" \
-    --argjson warp_config "$EXISTING_WARP_ROUTING" \
-    '{config: {ingress: $ingress_rules, "warp-routing": $warp_config}}')
+    --argjson ingress "$UPDATED_INGRESS_RULES" \
+    --argjson warp "$EXISTING_WARP_ROUTING" \
+    '{config: {ingress: $ingress, "warp-routing": $warp}}')
+
+# DEBUG: Show raw payload line for verification (uncomment if needed)
+echo "RAW_PAYLOAD=$FINAL_PAYLOAD" >&2
 
 echo ""
 echo "---------------------------------------------------------------------"
