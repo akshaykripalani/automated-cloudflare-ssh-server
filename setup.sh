@@ -40,8 +40,7 @@ NETWORK_CIDR="${SERVER_INTERNAL_IP}/32"
 echo "Determined network CIDR as: $NETWORK_CIDR"
 
 # Update config.env with runtime variables
-sed -i "/^SERVER_INTERNAL_IP=/d" config.env
-sed -i "/^NETWORK_CIDR=/d" config.env
+echo "" >> config.env
 echo "SERVER_INTERNAL_IP=\"$SERVER_INTERNAL_IP\"" >> config.env
 echo "NETWORK_CIDR=\"$NETWORK_CIDR\"" >> config.env
 
@@ -70,8 +69,6 @@ echo "Tunnel ID: $TUNNEL_ID"
 echo "Tunnel Token: $TUNNEL_TOKEN" # You'll need this token for cloudflared
 
 # After tunnel creation, update config.env with tunnel details
-sed -i "/^TUNNEL_ID=/d" config.env
-sed -i "/^TUNNEL_TOKEN=/d" config.env
 echo "TUNNEL_ID=\"$TUNNEL_ID\"" >> config.env
 echo "TUNNEL_TOKEN=\"$TUNNEL_TOKEN\"" >> config.env
 

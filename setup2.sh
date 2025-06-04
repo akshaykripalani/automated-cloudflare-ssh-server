@@ -53,6 +53,31 @@ if [[ "$target_success" != "true" ]]; then
 fi
 echo "Infrastructure target created successfully."
 
+# Construct the JSON for the 'include' part of the Access policy
+include_json_elements=""
+if [ -n "$AUTHORIZED_EMAILS" ]; then
+    # Save original IFS and set to comma for splitting
+    OLD_IFS="$IFS"
+    IFS=','
+    # Read emails into an array
+    read -r -a email_array <<< "$AUTHORIZED_EMAILS"
+    # Restore IFS
+    IFS="$OLD_IFS"
+
+    first_email=true
+    for email_address in "${email_array[@]}"; do
+        # Trim leading/trailing whitespace from email address
+        trimmed_email_address=$(echo "$email_address" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [ -n "$trimmed_email_address" ]; then # Ensure email is not empty after trim
+            if [ "$first_email" = true ]; then
+                first_email=false
+            else
+                include_json_elements+=","
+            fi
+            include_json_elements+='{"email":{"email":"'"$trimmed_email_address"'"}}'
+        fi
+    done
+fi
 
 # Create Access application for SSH
 echo "Creating Access application..."
@@ -61,7 +86,7 @@ app_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_I
   --header "Content-Type: application/json" \
   --data '{
     "name": "'"${APPNAME}"'",
-    "type": "infrastructure", 
+    "type": "infrastructure",
     "target_criteria": [
       {
         "target_attributes": {
@@ -78,21 +103,7 @@ app_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_I
         "name": "Allow authorized users",
         "decision": "allow",
         "include": [
-          {
-            "email": {
-              "email": "akshaykrip@gmail.com"
-            }
-          },
-          {
-            "email": {
-              "email": "asticlol69@gmail.com" 
-            }
-          },
-          {
-            "email": {
-              "email": "yash.panditrao@gmail.com"
-            }
-          }
+          '"${include_json_elements}"'
         ],
         "connection_rules": {
           "ssh": {
@@ -178,5 +189,3 @@ echo "     Common commands (use the one appropriate for your system):"
 echo "       sudo systemctl restart ssh (Common on most Ubuntu/Debian versions)" 
 echo "       sudo service ssh restart (if you're a dinosaur)"
 echo "---------------------------------------------------------------------"
-
-

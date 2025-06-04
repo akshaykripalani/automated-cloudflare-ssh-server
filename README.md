@@ -32,16 +32,16 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
      # Set your primary Unix username on this server
      UNIX_USERNAME="your_unix_username"
 
+     # Authorized email addresses for Cloudflare Access policy (comma-separated).
+     # Uncomment and modify the line below with actual email addresses.
+     # AUTHORIZED_EMAILS="user1@example.com,user2@example.com"
+
      # Custom names for Cloudflare resources (optional, defaults are provided)
      TUNNEL_NAME="VM-Script-Tunnel"
      HOSTNAME="Scripted-VM-Target"
      APPNAME="Scripted VM SSH Access"
 
-     # Runtime Variables (these will be set by the scripts, leave them commented out or blank initially)
-     # SERVER_INTERNAL_IP=""
-     # NETWORK_CIDR=""
-     # TUNNEL_ID=""
-     # TUNNEL_TOKEN=""
+     # Runtime Variables (these will be set by the scripts)
      ```
    - **Replace placeholders** like `YOUR_CLOUDFLARE_ACCOUNT_ID`, `YOUR_COMBINED_CLOUDFLARE_TOKEN`, and `your_unix_username` with your actual values.
    - **Security**: Protect this file as it contains sensitive API tokens. Set restrictive permissions (e.g., `chmod 600 config.env`).
@@ -60,7 +60,7 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
    - This script sets up the Cloudflare Tunnel and routes traffic from your Cloudflare network to this server.
    - **Command:** `./setup.sh`
    - This script will:
-     1. Detect the server's internal IP address.
+     1. Detect the server's internal IP address. (Note: On complex network setups, verify this is the correct IP. You may need to adjust the script or set `SERVER_INTERNAL_IP` manually in `config.env` beforehand if it's not detected correctly.)
      2. Create a Cloudflare Tunnel (named as per `TUNNEL_NAME` in `config.env`).
      3. Add a route in your Cloudflare Zero Trust for this server's IP to the created tunnel.
      4. Install and start the `cloudflared` service on this machine using the generated tunnel token.
@@ -80,7 +80,8 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
      2. Retrieve your default Virtual Network ID from Cloudflare.
      3. Create an Infrastructure Target in Cloudflare Access (named as per `HOSTNAME` in `config.env`).
      4. Create an Access Application for SSH (named as per `APPNAME` in `config.env`), targeting the created hostname and port 22.
-        - The application policy by default allows users with specific email addresses (hardcoded in the script) and the `UNIX_USERNAME` (from `config.env`) or `root`.
+        - The application policy by default allows users with email addresses specified in `AUTHORIZED_EMAILS` (from `config.env`).
+        - The connection rules in the policy allow SSH access for the `UNIX_USERNAME` (from `config.env`) and `root`. (Security Note: Allowing direct `root` login should be carefully considered. You can modify the script or the Access policy in the Cloudflare dashboard later if you wish to restrict `root` access.)
      5. Retrieve or generate the Cloudflare SSH CA public key.
      6. Append this public key to `/etc/ssh/ca.pub` on this server (if not already present).
      7. Provide instructions for manually updating your server's `sshd_config` and restarting the SSH service.
