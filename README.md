@@ -13,14 +13,11 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
 **2. Cloudflare Account & API Tokens:**
    - You need an active Cloudflare account.
    - The following API tokens must be generated from your Cloudflare dashboard:
-     - **`CLOUDFLARE_API_TOKEN`**: Needs permissions:
+     - **`COMBINED_CLOUDFLARE_TOKEN`**: Needs **all** permissions of the tokens it replaces:
        - Account Scope: `Cloudflare Tunnel:Edit`
        - Zone Scope (for all relevant zones if managing DNS, though not strictly used by these scripts for DNS record creation beyond tunnel routing): `DNS:Edit` (or more targeted permissions if preferred, but Tunnel:Edit at account level is key).
-     - **`ZEROTRUST_API_TOKEN`**: Needs permissions:
        - Account Scope: `Zero Trust:Edit`
-     - **`ACCESS_API_TOKEN`**: Needs permissions:
        - Account Scope: `Access: Apps and Policies:Edit` (or `Access: Apps:Edit` and `Access: Policies:Edit`)
-     - **`SSH_AUDIT_TOKEN`**: Needs permissions:
        - Account Scope: `Access: SSH Auditing:Edit` (This is for managing the SSH CA key).
 
 **3. Configuration File (`config.env`):**
@@ -30,10 +27,7 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
      ```env
      # Cloudflare Account and API Configuration
      ACCOUNT_ID="YOUR_CLOUDFLARE_ACCOUNT_ID"
-     CLOUDFLARE_API_TOKEN="YOUR_CLOUDFLARE_API_TOKEN"
-     ZEROTRUST_API_TOKEN="YOUR_ZEROTRUST_API_TOKEN"
-     ACCESS_API_TOKEN="YOUR_ACCESS_API_TOKEN"
-     SSH_AUDIT_TOKEN="YOUR_SSH_AUDIT_TOKEN"
+     COMBINED_CLOUDFLARE_TOKEN="YOUR_COMBINED_CLOUDFLARE_TOKEN"
 
      # Set your primary Unix username on this server
      UNIX_USERNAME="your_unix_username"
@@ -49,7 +43,7 @@ These scripts automate the setup of a Cloudflare Tunnel and Cloudflare Access fo
      # TUNNEL_ID=""
      # TUNNEL_TOKEN=""
      ```
-   - **Replace placeholders** like `YOUR_CLOUDFLARE_ACCOUNT_ID` and `your_unix_username` with your actual values.
+   - **Replace placeholders** like `YOUR_CLOUDFLARE_ACCOUNT_ID`, `YOUR_COMBINED_CLOUDFLARE_TOKEN`, and `your_unix_username` with your actual values.
    - **Security**: Protect this file as it contains sensitive API tokens. Set restrictive permissions (e.g., `chmod 600 config.env`).
 
 **4. Permissions:**

@@ -13,7 +13,7 @@ echo "Proceeding with configuring targets and applications..."
 # Get virtual network ID
 echo "Getting virtual network ID..."
 network_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/teamnet/virtual_networks?is_default=true" \
-  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN")
 
 network_success=$(echo "$network_response" | jq -r '.success')
 if [[ "$network_success" != "true" ]]; then
@@ -33,7 +33,7 @@ echo "Virtual network ID retrieved successfully: $VIRTUAL_NETWORK_ID"
 # Create infrastructure target
 echo "Creating infrastructure target..."
 target_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/infrastructure/targets" \
-  --header "Authorization: Bearer $ZEROTRUST_API_TOKEN" \
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{
     "hostname": "'"${HOSTNAME}"'",
@@ -57,7 +57,7 @@ echo "Infrastructure target created successfully."
 # Create Access application for SSH
 echo "Creating Access application..."
 app_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/apps" \
-  --header "Authorization: Bearer $ACCESS_API_TOKEN" \
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "'"${APPNAME}"'",
@@ -122,7 +122,7 @@ echo "Attempting to generate or retrieve Cloudflare SSH CA public key..."
 # Note: Using SSH_AUDIT_TOKEN as specified in the requirements
 ca_api_response=$(curl -s --request POST \
   "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/gateway_ca" \
-  --header "Authorization: Bearer $SSH_AUDIT_TOKEN")
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN")
 
 PUBLIC_KEY=$(echo "$ca_api_response" | jq -r '.result.public_key // empty')
 api_success=$(echo "$ca_api_response" | jq -r '.success')
@@ -132,7 +132,7 @@ if [[ "$api_success" == "true" && -n "$PUBLIC_KEY" ]]; then
 else
     echo "Cloudflare SSH CA already exists. Fetching existing CA public key via GET..."
     ca_api_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/access/gateway_ca" \
-        --header "Authorization: Bearer $SSH_AUDIT_TOKEN")
+        --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN")
 
     PUBLIC_KEY=$(echo "$ca_api_response" | jq -r '.result.public_key // empty')
     api_success=$(echo "$ca_api_response" | jq -r '.success')

@@ -10,7 +10,7 @@ fi
 source config.env
 
 # Check for required environment variables
-if [ -z "$ACCOUNT_ID" ] || [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+if [ -z "$ACCOUNT_ID" ] || [ -z "$COMBINED_CLOUDFLARE_TOKEN" ]; then
     echo "Error: Required environment variables are not set in config.env" >&2
     exit 1
 fi
@@ -48,7 +48,7 @@ echo "NETWORK_CIDR=\"$NETWORK_CIDR\"" >> config.env
 echo "Attempting to create Cloudflare tunnel..."
 response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel" \
   --header 'Content-Type: application/json' \
-  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN" \
   --data '{
     "name": "'"${TUNNEL_NAME}"'",
     "config_src": "cloudflare"
@@ -80,7 +80,7 @@ echo "Attempting to add route to tunnel..."
 # We 'exit' the single-quoted string to let bash expand the variable, then re-enter.
 route_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/teamnet/routes" \
   --header 'Content-Type: application/json' \
-  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN" \
   --data '{
     "network": "'"${NETWORK_CIDR}"'",
     "tunnel_id": "'"${TUNNEL_ID}"'",
@@ -106,7 +106,7 @@ echo "Attempting to verify if tunnel is running..."
 
 verification_response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID" \
   --header 'Content-Type: application/json' \
-  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+  --header "Authorization: Bearer $COMBINED_CLOUDFLARE_TOKEN")
 
 verification_success=$(echo "$verification_response" | jq -r '.success')
 if [[ "$verification_success" != "true" ]]; then
