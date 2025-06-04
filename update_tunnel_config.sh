@@ -90,9 +90,9 @@ UPDATED_INGRESS_RULES=$(echo "$FILTERED_INGRESS_RULES" | jq -c ". + [$NEW_RULE] 
 
 # Construct the final JSON payload for the PUT request
 FINAL_PAYLOAD=$(jq -n \
-    --argjson ingress "$UPDATED_INGRESS_RULES" \
-    --argjson warp_routing "$EXISTING_WARP_ROUTING" \
-    '{ingress: $ingress, "warp-routing": $warp_routing}')
+    --argjson ingress_rules "$UPDATED_INGRESS_RULES" \
+    --argjson warp_config "$EXISTING_WARP_ROUTING" \
+    '{config: {ingress: $ingress_rules, "warp-routing": $warp_config}}')
 
 echo ""
 echo "---------------------------------------------------------------------"
